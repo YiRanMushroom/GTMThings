@@ -28,8 +28,7 @@ import static com.gregtechceu.gtceu.api.data.tag.TagPrefix.*;
 import static com.gregtechceu.gtceu.common.data.GTMaterials.Steel;
 import static com.gregtechceu.gtceu.common.data.GTMaterials.Tin;
 import static com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES;
-import static com.hepdd.gtmthings.data.CustomItems.ADVANCED_TERMINAL;
-import static com.hepdd.gtmthings.data.CustomItems.WIRELESS_ENERGY_BINDING_TOOL;
+import static com.hepdd.gtmthings.data.CustomItems.*;
 
 public class GTMTRecipe {
 
@@ -397,7 +396,7 @@ public class GTMTRecipe {
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_receive_cover_from_input_" + GTValues.VN[tier].toLowerCase()))
                     .inputItems(WirelessMachines.WIRELESS_ENERGY_INPUT_HATCH[tier].asStack())
                     .circuitMeta(18)
-                    .outputItems(WIRELESS_ENERGY_RECEIVE_COVER.get(tier - 1).asStack(8))
+                    .outputItems(WIRELESS_ENERGY_RECEIVE_COVER_4A.get(tier - 1).asStack(4))
                     .duration(200)
                     .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
@@ -406,7 +405,7 @@ public class GTMTRecipe {
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_receive_cover_from_output_" + GTValues.VN[tier].toLowerCase()))
                     .inputItems(WirelessMachines.WIRELESS_ENERGY_OUTPUT_HATCH[tier].asStack())
                     .circuitMeta(18)
-                    .outputItems(WIRELESS_ENERGY_RECEIVE_COVER.get(tier - 1).asStack(8))
+                    .outputItems(WIRELESS_ENERGY_RECEIVE_COVER_4A.get(tier - 1).asStack(4))
                     .duration(200)
                     .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
