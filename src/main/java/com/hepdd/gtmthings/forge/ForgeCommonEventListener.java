@@ -1,8 +1,11 @@
 package com.hepdd.gtmthings.forge;
 
+import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -43,6 +46,15 @@ public class ForgeCommonEventListener {
             ServerLevel serverLevel = level.getServer().getLevel(Level.OVERWORLD);
             if (serverLevel == null) return;
             WirelessEnergySavaedData.INSTANCE = WirelessEnergySavaedData.getOrCreate(serverLevel);
+        }
+    }
+
+    @SubscribeEvent
+    public static void attachEnergyCapability(AttachCapabilitiesEvent<net.minecraft.world.level.block.entity.BlockEntity> event) {
+        var blockEntity = event.getObject();
+        // Attach to GT machine block entities - use interface check like Gregfluxology
+        if (blockEntity instanceof IMachineBlockEntity) {
+            event.addCapability(FEToEUProvider.CAP_ID, new FEToEUProvider(blockEntity));
         }
     }
 }
