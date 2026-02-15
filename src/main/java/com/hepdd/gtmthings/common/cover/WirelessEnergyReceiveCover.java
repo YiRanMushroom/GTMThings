@@ -2,6 +2,7 @@ package com.hepdd.gtmthings.common.cover;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.ICoverable;
+import com.gregtechceu.gtceu.api.capability.IEnergyContainer;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.cover.CoverBehavior;
 import com.gregtechceu.gtceu.api.cover.CoverDefinition;
@@ -72,7 +73,9 @@ public class WirelessEnergyReceiveCover extends CoverBehavior implements IWirele
     @Override
     public boolean canAttach() {
         var machine = getMachine();
-        if (machine instanceof TieredEnergyMachine tieredEnergyMachine && tieredEnergyMachine.energyContainer.getHandlerIO() == IO.IN && tieredEnergyMachine.getTier() >= this.tier) {
+        if (machine instanceof TieredEnergyMachine tieredEnergyMachine && tieredEnergyMachine.getTier() >= this.tier) {
+            IO handlerIO = tieredEnergyMachine.energyContainer.getHandlerIO();
+            if (handlerIO != IO.IN && handlerIO != IO.OUT) return false;
             var covers = tieredEnergyMachine.getCoverContainer().getCovers();
             for (var cover : covers) {
                 if (cover instanceof WirelessEnergyReceiveCover) return false;
@@ -128,23 +131,49 @@ public class WirelessEnergyReceiveCover extends CoverBehavior implements IWirele
         var energyContainer = getEnergyContainer(coverHolder.getLevel(), coverHolder.getPos(), attachedSide);
         if (energyContainer != null) {
             var machine = getMachine();
-            if (machine instanceof BatteryBufferMachine || machine instanceof HullMachine || machine instanceof WirelessEnergyReceiveCoverHolder) {
-                var changeStored = Math.min(energyContainer.getEnergyCapacity() - energyContainer.getEnergyStored(), this.energyPerTick);
-                if (changeStored <= 0) return;
-                WirelessEnergyContainer container = getWirelessEnergyContainer();
-                if (container == null) return;
-                long changeenergy = container.removeEnergy(changeStored, machine);
-                if (changeenergy > 0) energyContainer.acceptEnergyFromNetwork(null, changeenergy / this.amperage, this.amperage);
+
+            boolean isOutput = false;
+            if (machine instanceof TieredEnergyMachine tieredEnergyMachine) {
+                isOutput = tieredEnergyMachine.energyContainer.getHandlerIO() == IO.OUT;
+            }
+
+            if (isOutput) {
+                handleEnergyOutput(energyContainer, machine);
             } else {
-                var changeStored = Math.min(this.machineMaxEnergy - energyContainer.getEnergyStored(), this.energyPerTick);
-                if (changeStored <= 0) return;
-                WirelessEnergyContainer container = getWirelessEnergyContainer();
-                if (container == null) return;
-                long changeenergy = container.removeEnergy(changeStored, machine);
-                if (changeenergy > 0) energyContainer.addEnergy(changeenergy);
+                handleEnergyInput(energyContainer, machine);
             }
         }
         updateCoverSub();
+    }
+
+    private void handleEnergyInput(IEnergyContainer energyContainer, @Nullable MetaMachine machine) {
+        if (machine instanceof BatteryBufferMachine || machine instanceof HullMachine || machine instanceof WirelessEnergyReceiveCoverHolder) {
+            var changeStored = Math.min(energyContainer.getEnergyCapacity() - energyContainer.getEnergyStored(), this.energyPerTick);
+            if (changeStored <= 0) return;
+            WirelessEnergyContainer container = getWirelessEnergyContainer();
+            if (container == null) return;
+            long changeenergy = container.removeEnergy(changeStored, machine);
+            if (changeenergy > 0) energyContainer.acceptEnergyFromNetwork(null, changeenergy / this.amperage, this.amperage);
+        } else {
+            var changeStored = Math.min(this.machineMaxEnergy - energyContainer.getEnergyStored(), this.energyPerTick);
+            if (changeStored <= 0) return;
+            WirelessEnergyContainer container = getWirelessEnergyContainer();
+            if (container == null) return;
+            long changeenergy = container.removeEnergy(changeStored, machine);
+            if (changeenergy > 0) energyContainer.addEnergy(changeenergy);
+        }
+    }
+
+    private void handleEnergyOutput(IEnergyContainer energyContainer, @Nullable MetaMachine machine) {
+        long storedEnergy = energyContainer.getEnergyStored();
+        var changeStored = Math.min(storedEnergy, this.energyPerTick);
+        if (changeStored <= 0) return;
+        WirelessEnergyContainer container = getWirelessEnergyContainer();
+        if (container == null) return;
+        long extracted = energyContainer.removeEnergy(changeStored);
+        if (extracted > 0) {
+            container.addEnergy(extracted, machine);
+        }
     }
 
     @Override
