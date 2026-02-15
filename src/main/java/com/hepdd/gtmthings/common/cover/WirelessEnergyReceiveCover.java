@@ -170,14 +170,19 @@ public class WirelessEnergyReceiveCover extends CoverBehavior implements IWirele
     }
 
     private void handleEnergyOutput(IEnergyContainer energyContainer, @Nullable MetaMachine machine) {
-        long storedEnergy = energyContainer.getEnergyStored();
-        var changeStored = Math.min(storedEnergy, this.energyPerTick);
-        if (changeStored <= 0) return;
+        if (!(machine instanceof TieredEnergyMachine tieredMachine)) return;
+
         WirelessEnergyContainer container = getWirelessEnergyContainer();
         if (container == null) return;
-        long extracted = energyContainer.removeEnergy(changeStored);
-        if (extracted > 0) {
-            container.addEnergy(extracted, machine);
+
+        var internalContainer = tieredMachine.energyContainer;
+        long storedEnergy = internalContainer.getEnergyStored();
+        var changeStored = Math.min(storedEnergy, this.energyPerTick);
+        if (changeStored <= 0) return;
+
+        long added = container.addEnergy(changeStored, machine);
+        if (added > 0) {
+            internalContainer.removeEnergy(added);
         }
     }
 
