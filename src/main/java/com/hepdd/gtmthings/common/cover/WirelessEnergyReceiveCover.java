@@ -75,7 +75,7 @@ public class WirelessEnergyReceiveCover extends CoverBehavior implements IWirele
         var machine = getMachine();
         if (machine instanceof TieredEnergyMachine tieredEnergyMachine && tieredEnergyMachine.getTier() >= this.tier) {
             IO handlerIO = tieredEnergyMachine.energyContainer.getHandlerIO();
-            if (handlerIO != IO.IN && handlerIO != IO.OUT) return false;
+            if (handlerIO != IO.IN && handlerIO != IO.OUT && handlerIO != IO.BOTH) return false;
             var covers = tieredEnergyMachine.getCoverContainer().getCovers();
             for (var cover : covers) {
                 if (cover instanceof WirelessEnergyReceiveCover) return false;
@@ -134,7 +134,12 @@ public class WirelessEnergyReceiveCover extends CoverBehavior implements IWirele
 
             boolean isOutput = false;
             if (machine instanceof TieredEnergyMachine tieredEnergyMachine) {
-                isOutput = tieredEnergyMachine.energyContainer.getHandlerIO() == IO.OUT;
+                IO handlerIO = tieredEnergyMachine.energyContainer.getHandlerIO();
+                if (handlerIO == IO.OUT) {
+                    isOutput = true;
+                } else if (handlerIO == IO.BOTH) {
+                    isOutput = tieredEnergyMachine.energyContainer.outputsEnergy(attachedSide);
+                }
             }
 
             if (isOutput) {

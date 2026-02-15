@@ -14,7 +14,6 @@ import com.gregtechceu.gtceu.utils.FormattingUtil;
 import net.minecraft.network.chat.Component;
 
 import com.hepdd.gtmthings.GTMThings;
-import com.hepdd.gtmthings.common.block.machine.electric.WirelessEnergyInterface;
 import com.hepdd.gtmthings.common.block.machine.electric.WirelessEnergyMonitor;
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.WirelessEnergyHatchPartMachine;
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.computation.WirelessOpticalComputationHatchMachine;
@@ -42,12 +41,12 @@ public class WirelessMachines {
             .tier(IV)
             .register();
 
-    public static final MachineDefinition WIRELESS_ENERGY_INTERFACE = GTMTHINGS_REGISTRATE
-            .machine("wireless_energy_interface", WirelessEnergyInterface::new)
-            .rotationState(RotationState.ALL)
-            .overlayTieredHullRenderer("energy_hatch.input")
-            .tier(IV)
-            .register();
+    // public static final MachineDefinition WIRELESS_ENERGY_INTERFACE = GTMTHINGS_REGISTRATE
+    // .machine("wireless_energy_interface", WirelessEnergyInterface::new)
+    // .rotationState(RotationState.ALL)
+    // .overlayTieredHullRenderer("energy_hatch.input")
+    // .tier(IV)
+    // .register();
 
     public static final MachineDefinition WIRELESS_COMPUTATION_HATCH_TRANSMITTER = GTMTHINGS_REGISTRATE
             .machine("wireless_computation_transmitter_hatch", (holder) -> new WirelessOpticalComputationHatchMachine(holder, true))

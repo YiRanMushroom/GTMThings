@@ -5,7 +5,10 @@ import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.material.stack.UnificationEntry;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.api.item.ComponentItem;
-import com.gregtechceu.gtceu.common.data.*;
+import com.gregtechceu.gtceu.common.data.GTItems;
+import com.gregtechceu.gtceu.common.data.GTMachines;
+import com.gregtechceu.gtceu.common.data.GTMaterials;
+import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import com.gregtechceu.gtceu.common.data.machines.GTAEMachines;
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
 import com.gregtechceu.gtceu.data.recipe.CustomTags;
@@ -28,7 +31,8 @@ import static com.gregtechceu.gtceu.api.data.tag.TagPrefix.*;
 import static com.gregtechceu.gtceu.common.data.GTMaterials.Steel;
 import static com.gregtechceu.gtceu.common.data.GTMaterials.Tin;
 import static com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES;
-import static com.hepdd.gtmthings.data.CustomItems.*;
+import static com.hepdd.gtmthings.data.CustomItems.ADVANCED_TERMINAL;
+import static com.hepdd.gtmthings.data.CustomItems.WIRELESS_ENERGY_BINDING_TOOL;
 
 public class GTMTRecipe {
 
@@ -74,18 +78,18 @@ public class GTMTRecipe {
                 .EUt(GTValues.VA[GTValues.LV])
                 .save(provider);
 
-        ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_interface"))
-                .inputItems(GTMachines.ENERGY_INPUT_HATCH[1].asStack())
-                .inputItems(CustomItems.WIRELESS_ENERGY_RECEIVE_COVER_LV.asStack())
-                .inputItems(Items.ENDER_PEARL, 16)
-                .inputItems(CustomTags.LV_CIRCUITS, 4)
-                .inputItems(TagPrefix.spring, GTMaterials.Iron, 4)
-                .inputItems(TagPrefix.foil, GTMaterials.Steel, 16)
-                .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
-                .outputItems(WirelessMachines.WIRELESS_ENERGY_INTERFACE.asStack())
-                .duration(400)
-                .EUt(GTValues.VA[GTValues.LV])
-                .save(provider);
+        // ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_interface"))
+        // .inputItems(GTMachines.ENERGY_INPUT_HATCH[1].asStack())
+        // .inputItems(CustomItems.WIRELESS_ENERGY_RECEIVE_COVER_LV.asStack())
+        // .inputItems(Items.ENDER_PEARL, 16)
+        // .inputItems(CustomTags.LV_CIRCUITS, 4)
+        // .inputItems(TagPrefix.spring, GTMaterials.Iron, 4)
+        // .inputItems(TagPrefix.foil, GTMaterials.Steel, 16)
+        // .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+        // .outputItems(WirelessMachines.WIRELESS_ENERGY_INTERFACE.asStack())
+        // .duration(400)
+        // .EUt(GTValues.VA[GTValues.LV])
+        // .save(provider);
 
         ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_item_transfer_cover"))
                 .inputItems(GTItems.SENSOR_LV.asStack())
