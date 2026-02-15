@@ -21,9 +21,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * FE -> EU capability bridge.
+ * FE <-> EU capability bridge.
  * Attach to GT machine BlockEntities to expose IEnergyStorage (FE) capability
  * that proxies to GT's IEnergyContainer (EU).
+ * Supports both FE input (FE->EU) and FE output (EU->FE).
  */
 public class FEToEUProvider implements ICapabilityProvider {
 
@@ -46,8 +47,8 @@ public class FEToEUProvider implements ICapabilityProvider {
         LazyOptional<IEnergyContainer> gtCap = blockEntity.getCapability(GTCapability.CAPABILITY_ENERGY_CONTAINER, side);
 
         return gtCap.map(container -> {
-            // Only provide FE cap if GT container can input energy on this side
-            if (container.inputsEnergy(side)) {
+            // Provide FE cap if GT container can input OR output energy on this side
+            if (container.inputsEnergy(side) || container.outputsEnergy(side)) {
                 return ForgeCapabilities.ENERGY.<T>orEmpty(cap, LazyOptional.of(() -> new FEEnergyWrapper(container, side)));
             }
             return LazyOptional.<T>empty();
@@ -104,8 +105,34 @@ public class FEToEUProvider implements ICapabilityProvider {
 
         @Override
         public int extractEnergy(int maxExtract, boolean simulate) {
-            // FE extraction is handled by GT itself, we only handle FE input
-            return 0;
+            if (!canExtract()) {
+                return 0;
+            }
+
+            // Convert FE request to EU
+            long maxOutEu = FeCompat.toEu(maxExtract, FeCompat.ratio(true));
+            long stored = energyContainer.getEnergyStored();
+            long voltage = energyContainer.getOutputVoltage();
+            if (voltage <= 0) {
+                return 0;
+            }
+
+            // Calculate how much we can actually extract
+            long maxAmp = Math.min(energyContainer.getOutputAmperage(), maxOutEu / voltage);
+            long actualEu = Math.min(stored, maxAmp * voltage);
+            if (actualEu < voltage) {
+                return 0; // Not enough for even 1 amp
+            }
+
+            // Round down to full amps
+            actualEu = (actualEu / voltage) * voltage;
+
+            if (!simulate) {
+                energyContainer.removeEnergy(actualEu);
+            }
+
+            // Convert EU to FE for return value
+            return FeCompat.toFe(actualEu, FeCompat.ratio(false));
         }
 
         @Override
@@ -120,8 +147,7 @@ public class FEToEUProvider implements ICapabilityProvider {
 
         @Override
         public boolean canExtract() {
-            // FE extraction handled by GT itself
-            return false;
+            return energyContainer.outputsEnergy(facing);
         }
 
         @Override

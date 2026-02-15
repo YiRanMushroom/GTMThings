@@ -5,10 +5,8 @@ import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.material.stack.UnificationEntry;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.api.item.ComponentItem;
-import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType;
 import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.common.data.machines.GTAEMachines;
-import com.gregtechceu.gtceu.common.data.machines.GTMultiMachines;
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
 import com.gregtechceu.gtceu.data.recipe.CustomTags;
 import com.gregtechceu.gtceu.data.recipe.VanillaRecipeHelper;
@@ -377,24 +375,40 @@ public class GTMTRecipe {
         }
 
         for (int tier : GTValues.tiersBetween(GTValues.LV, GTCEuAPI.isHighTier() ? GTValues.OpV : GTValues.UV)) {
+            // Wireless Energy Input Hatch: energy input hatch + circuit 16, LV 200t
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_input_hatch_" + GTValues.VN[tier].toLowerCase()))
                     .inputItems(GTMachines.ENERGY_INPUT_HATCH[tier].asStack())
-                    .inputItems(WIRELESS_ENERGY_RECEIVE_COVER.get(tier - 1).asStack())
-                    .inputItems(GTItems.COVER_ENERGY_DETECTOR_ADVANCED.asStack())
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+                    .circuitMeta(16)
                     .outputItems(WirelessMachines.WIRELESS_ENERGY_INPUT_HATCH[tier].asStack())
                     .duration(200)
-                    .EUt(GTValues.VA[tier])
+                    .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
 
+            // Wireless Energy Output Hatch: energy output hatch + circuit 16, LV 200t
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_output_hatch_" + GTValues.VN[tier].toLowerCase()))
                     .inputItems(GTMachines.ENERGY_OUTPUT_HATCH[tier].asStack())
-                    .inputItems(WIRELESS_ENERGY_RECEIVE_COVER.get(tier - 1).asStack())
-                    .inputItems(GTItems.COVER_ENERGY_DETECTOR_ADVANCED.asStack())
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+                    .circuitMeta(16)
                     .outputItems(WirelessMachines.WIRELESS_ENERGY_OUTPUT_HATCH[tier].asStack())
                     .duration(200)
-                    .EUt(GTValues.VA[tier])
+                    .EUt(GTValues.VA[GTValues.LV])
+                    .save(provider);
+
+            // Wireless Energy Receive Cover from Input Hatch: wireless input hatch + circuit 18, 1 to 8
+            ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_receive_cover_from_input_" + GTValues.VN[tier].toLowerCase()))
+                    .inputItems(WirelessMachines.WIRELESS_ENERGY_INPUT_HATCH[tier].asStack())
+                    .circuitMeta(18)
+                    .outputItems(WIRELESS_ENERGY_RECEIVE_COVER.get(tier - 1).asStack(8))
+                    .duration(200)
+                    .EUt(GTValues.VA[GTValues.LV])
+                    .save(provider);
+
+            // Wireless Energy Receive Cover from Output Hatch: wireless output hatch + circuit 18, 1 to 8
+            ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_receive_cover_from_output_" + GTValues.VN[tier].toLowerCase()))
+                    .inputItems(WirelessMachines.WIRELESS_ENERGY_OUTPUT_HATCH[tier].asStack())
+                    .circuitMeta(18)
+                    .outputItems(WIRELESS_ENERGY_RECEIVE_COVER.get(tier - 1).asStack(8))
+                    .duration(200)
+                    .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
         }
 
@@ -422,118 +436,96 @@ public class GTMTRecipe {
                         .EUt(GTValues.VA[tier])
                         .save(provider);
             }
+            // Wireless Energy Input Hatch 4A: energy input hatch 4A + circuit 16, LV 200t
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_input_hatch_" + GTValues.VN[tier].toLowerCase() + "_4a"))
                     .inputItems(GTMachines.ENERGY_INPUT_HATCH_4A[tier].asStack())
-                    .inputItems(WIRELESS_ENERGY_RECEIVE_COVER.get(tier - 1).asStack(2))
-                    .inputItems(GTItems.COVER_ENERGY_DETECTOR_ADVANCED.asStack(1))
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+                    .circuitMeta(16)
                     .outputItems(WirelessMachines.WIRELESS_ENERGY_INPUT_HATCH_4A[tier].asStack())
                     .duration(200)
-                    .EUt(GTValues.VA[tier])
+                    .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
 
+            // Wireless Energy Input Hatch 16A: energy input hatch 16A + circuit 16, LV 200t
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_input_hatch_" + GTValues.VN[tier].toLowerCase() + "_16a"))
                     .inputItems(GTMachines.ENERGY_INPUT_HATCH_16A[tier].asStack())
-                    .inputItems(WIRELESS_ENERGY_RECEIVE_COVER_4A.get(tier - 1).asStack(2))
-                    .inputItems(GTItems.COVER_ENERGY_DETECTOR_ADVANCED.asStack(1))
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+                    .circuitMeta(16)
                     .outputItems(WirelessMachines.WIRELESS_ENERGY_INPUT_HATCH_16A[tier].asStack())
                     .duration(200)
-                    .EUt(GTValues.VA[tier])
+                    .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
 
+            // Wireless Energy Output Hatch 4A: energy output hatch 4A + circuit 16, LV 200t
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_output_hatch_" + GTValues.VN[tier].toLowerCase() + "_4a"))
                     .inputItems(GTMachines.ENERGY_OUTPUT_HATCH_4A[tier].asStack())
-                    .inputItems(WIRELESS_ENERGY_RECEIVE_COVER.get(tier - 1).asStack(2))
-                    .inputItems(GTItems.COVER_ENERGY_DETECTOR_ADVANCED.asStack(1))
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+                    .circuitMeta(16)
                     .outputItems(WirelessMachines.WIRELESS_ENERGY_OUTPUT_HATCH_4A[tier].asStack())
                     .duration(200)
-                    .EUt(GTValues.VA[tier])
+                    .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
 
+            // Wireless Energy Output Hatch 16A: energy output hatch 16A + circuit 16, LV 200t
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_output_hatch_" + GTValues.VN[tier].toLowerCase() + "_16a"))
                     .inputItems(GTMachines.ENERGY_OUTPUT_HATCH_16A[tier].asStack())
-                    .inputItems(WIRELESS_ENERGY_RECEIVE_COVER_4A.get(tier - 1).asStack(2))
-                    .inputItems(GTItems.COVER_ENERGY_DETECTOR_ADVANCED.asStack(1))
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+                    .circuitMeta(16)
                     .outputItems(WirelessMachines.WIRELESS_ENERGY_OUTPUT_HATCH_16A[tier].asStack())
                     .duration(200)
-                    .EUt(GTValues.VA[tier])
+                    .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
         }
 
         for (int tier : GTValues.tiersBetween(GTValues.IV, GTCEuAPI.isHighTier() ? GTValues.OpV : GTValues.UV)) {
+            // Wireless Energy Input Hatch 256A: laser input hatch 256A + circuit 16, LV 200t
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_input_hatch_" + GTValues.VN[tier].toLowerCase() + "_256a"))
                     .inputItems(GTMachines.LASER_INPUT_HATCH_256[tier].asStack())
-                    .inputItems(WIRELESS_ENERGY_RECEIVE_COVER_4A.get(tier - 1).asStack(4))
-                    .inputItems(GTMultiMachines.ACTIVE_TRANSFORMER.asStack())
-                    .inputItems(GTBlocks.SUPERCONDUCTING_COIL.asStack())
-                    .inputItems(GTItems.COVER_ENERGY_DETECTOR_ADVANCED.asStack(1))
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+                    .circuitMeta(16)
                     .outputItems(WirelessMachines.WIRELESS_ENERGY_INPUT_HATCH_256A[tier].asStack())
                     .duration(200)
-                    .EUt(GTValues.VA[tier])
+                    .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
 
+            // Wireless Energy Input Hatch 1024A: laser input hatch 1024A + circuit 16, LV 200t
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_input_hatch_" + GTValues.VN[tier].toLowerCase() + "_1024a"))
                     .inputItems(GTMachines.LASER_INPUT_HATCH_1024[tier].asStack())
-                    .inputItems(WIRELESS_ENERGY_RECEIVE_COVER_4A.get(tier - 1).asStack(8))
-                    .inputItems(GTMultiMachines.ACTIVE_TRANSFORMER.asStack())
-                    .inputItems(GTBlocks.SUPERCONDUCTING_COIL.asStack())
-                    .inputItems(GTItems.COVER_ENERGY_DETECTOR_ADVANCED.asStack(1))
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+                    .circuitMeta(16)
                     .outputItems(WirelessMachines.WIRELESS_ENERGY_INPUT_HATCH_1024A[tier].asStack())
                     .duration(200)
-                    .EUt(GTValues.VA[tier])
+                    .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
 
+            // Wireless Energy Input Hatch 4096A: laser input hatch 4096A + circuit 16, LV 200t
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_input_hatch_" + GTValues.VN[tier].toLowerCase() + "_4096a"))
                     .inputItems(GTMachines.LASER_INPUT_HATCH_4096[tier].asStack())
-                    .inputItems(WIRELESS_ENERGY_RECEIVE_COVER_4A.get(tier - 1).asStack(16))
-                    .inputItems(GTMultiMachines.ACTIVE_TRANSFORMER.asStack())
-                    .inputItems(GTBlocks.SUPERCONDUCTING_COIL.asStack())
-                    .inputItems(GTItems.COVER_ENERGY_DETECTOR_ADVANCED.asStack(1))
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+                    .circuitMeta(16)
                     .outputItems(WirelessMachines.WIRELESS_ENERGY_INPUT_HATCH_4096A[tier].asStack())
                     .duration(200)
-                    .EUt(GTValues.VA[tier])
+                    .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
 
+            // Wireless Energy Output Hatch 256A: laser output hatch 256A + circuit 16, LV 200t
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_output_hatch_" + GTValues.VN[tier].toLowerCase() + "_256a"))
                     .inputItems(GTMachines.LASER_OUTPUT_HATCH_256[tier].asStack())
-                    .inputItems(WIRELESS_ENERGY_RECEIVE_COVER_4A.get(tier - 1).asStack(4))
-                    .inputItems(GTMultiMachines.ACTIVE_TRANSFORMER.asStack())
-                    .inputItems(GTBlocks.SUPERCONDUCTING_COIL.asStack())
-                    .inputItems(GTItems.COVER_ENERGY_DETECTOR_ADVANCED.asStack(1))
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+                    .circuitMeta(16)
                     .outputItems(WirelessMachines.WIRELESS_ENERGY_OUTPUT_HATCH_256A[tier].asStack())
                     .duration(200)
-                    .EUt(GTValues.VA[tier])
+                    .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
 
+            // Wireless Energy Output Hatch 1024A: laser output hatch 1024A + circuit 16, LV 200t
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_output_hatch_" + GTValues.VN[tier].toLowerCase() + "_1024a"))
                     .inputItems(GTMachines.LASER_OUTPUT_HATCH_1024[tier].asStack())
-                    .inputItems(WIRELESS_ENERGY_RECEIVE_COVER_4A.get(tier - 1).asStack(8))
-                    .inputItems(GTMultiMachines.ACTIVE_TRANSFORMER.asStack())
-                    .inputItems(GTBlocks.SUPERCONDUCTING_COIL.asStack())
-                    .inputItems(GTItems.COVER_ENERGY_DETECTOR_ADVANCED.asStack(1))
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+                    .circuitMeta(16)
                     .outputItems(WirelessMachines.WIRELESS_ENERGY_OUTPUT_HATCH_1024A[tier].asStack())
                     .duration(200)
-                    .EUt(GTValues.VA[tier])
+                    .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
 
+            // Wireless Energy Output Hatch 4096A: laser output hatch 4096A + circuit 16, LV 200t
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_output_hatch_" + GTValues.VN[tier].toLowerCase() + "_4096a"))
                     .inputItems(GTMachines.LASER_OUTPUT_HATCH_4096[tier].asStack())
-                    .inputItems(WIRELESS_ENERGY_RECEIVE_COVER_4A.get(tier - 1).asStack(16))
-                    .inputItems(GTMultiMachines.ACTIVE_TRANSFORMER.asStack())
-                    .inputItems(GTBlocks.SUPERCONDUCTING_COIL.asStack())
-                    .inputItems(GTItems.COVER_ENERGY_DETECTOR_ADVANCED.asStack(1))
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+                    .circuitMeta(16)
                     .outputItems(WirelessMachines.WIRELESS_ENERGY_OUTPUT_HATCH_4096A[tier].asStack())
                     .duration(200)
-                    .EUt(GTValues.VA[tier])
+                    .EUt(GTValues.VA[GTValues.LV])
                     .save(provider);
         }
         ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("lv_digital_miner"))
@@ -611,26 +603,22 @@ public class GTMTRecipe {
                 .EUt(GTValues.VA[GTValues.HV])
                 .save(provider);
 
+        // Wireless Computation Transmitter Hatch: computation transmitter + circuit 16, LV 200t
         ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_computation_transmitter_hatch"))
                 .inputItems(GTResearchMachines.COMPUTATION_HATCH_TRANSMITTER.asStack())
-                .inputItems(CustomTags.ZPM_CIRCUITS)
-                .inputItems(GTItems.SENSOR_ZPM)
-                .inputFluids(GTMaterials.Polybenzimidazole.getFluid(288))
+                .circuitMeta(16)
                 .outputItems(WirelessMachines.WIRELESS_COMPUTATION_HATCH_TRANSMITTER)
-                .cleanroom(CleanroomType.CLEANROOM)
                 .duration(200)
-                .EUt(GTValues.VA[GTValues.ZPM])
+                .EUt(GTValues.VA[GTValues.LV])
                 .save(provider);
 
+        // Wireless Computation Receiver Hatch: computation receiver + circuit 16, LV 200t
         ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_computation_receiver_hatch"))
-                .inputItems(GTResearchMachines.COMPUTATION_HATCH_TRANSMITTER.asStack())
-                .inputItems(CustomTags.ZPM_CIRCUITS)
-                .inputItems(GTItems.EMITTER_ZPM)
-                .inputFluids(GTMaterials.Polybenzimidazole.getFluid(288))
+                .inputItems(GTResearchMachines.COMPUTATION_HATCH_RECEIVER.asStack())
+                .circuitMeta(16)
                 .outputItems(WirelessMachines.WIRELESS_COMPUTATION_HATCH_RECEIVER)
-                .cleanroom(CleanroomType.CLEANROOM)
                 .duration(200)
-                .EUt(GTValues.VA[GTValues.ZPM])
+                .EUt(GTValues.VA[GTValues.LV])
                 .save(provider);
 
         ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("advanced_wireless_item_transfer_cover"))
