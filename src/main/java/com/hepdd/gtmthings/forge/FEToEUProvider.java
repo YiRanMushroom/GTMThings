@@ -4,173 +4,104 @@ package com.hepdd.gtmthings.forge;
 // MIT License
 
 import com.gregtechceu.gtceu.api.capability.IEnergyContainer;
+import com.gregtechceu.gtceu.api.capability.compat.CapabilityCompatProvider;
 import com.gregtechceu.gtceu.api.capability.compat.FeCompat;
-import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.MetaMachine;
-import com.gregtechceu.gtceu.api.machine.trait.MachineTrait;
+import com.gregtechceu.gtceu.api.capability.forge.GTCapability;
+import com.gregtechceu.gtceu.common.pipelike.cable.EnergyNetHandler;
 
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 
-import com.hepdd.gtmthings.GTMThings;
+import com.hepdd.gtmthings.config.ConfigHolder;
+import com.hepdd.gtmthings.utils.GTMTUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-/**
- * FE <-> EU capability bridge.
- * Attach to GT machine BlockEntities to expose IEnergyStorage (FE) capability
- * that proxies to GT's IEnergyContainer (EU).
- * Supports both FE input (FE->EU) and FE output (EU->FE).
- */
-public class FEToEUProvider implements ICapabilityProvider {
+public class FEToEUProvider extends CapabilityCompatProvider {
 
-    public static final ResourceLocation CAP_ID = GTMThings.id("fecapability");
-
-    private final IMachineBlockEntity blockEntity;
-
-    public FEToEUProvider(BlockEntity blockEntity) {
-        this.blockEntity = (IMachineBlockEntity) blockEntity;
+    public FEToEUProvider(ICapabilityProvider upValue) {
+        super(upValue);
     }
 
-    @NotNull
     @Override
-    public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap != ForgeCapabilities.ENERGY) {
+    @NotNull
+    public <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, Direction facing) {
+        if (capability != ForgeCapabilities.ENERGY) {
             return LazyOptional.empty();
         }
 
-        // Directly access the MetaMachine to avoid capability query loops
-        MetaMachine machine = blockEntity.getMetaMachine();
-        if (machine == null) {
-            return LazyOptional.empty();
-        }
-
-        // Find IEnergyContainer trait directly from machine traits
-        IEnergyContainer container = null;
-        for (MachineTrait trait : machine.getTraits()) {
-            if (trait instanceof IEnergyContainer energyContainer) {
-                container = energyContainer;
-                break;
-            }
-        }
-
-        if (container == null) {
-            return LazyOptional.empty();
-        }
-
-        // Provide FE cap if GT container can input OR output energy on this side
-        if (container.inputsEnergy(side) || container.outputsEnergy(side)) {
-            IEnergyContainer finalContainer = container;
-            return ForgeCapabilities.ENERGY.orEmpty(cap, LazyOptional.of(() -> new FEEnergyWrapper(finalContainer, side)));
-        }
-
-        return LazyOptional.empty();
+        LazyOptional<IEnergyContainer> energyContainer = getUpvalueCapability(GTCapability.CAPABILITY_ENERGY_CONTAINER,
+                facing);
+        return energyContainer.isPresent() ?
+                ForgeCapabilities.ENERGY.orEmpty(capability,
+                        LazyOptional.of(() -> new FEEnergyWrapper(energyContainer.resolve().get(), facing))) :
+                LazyOptional.empty();
     }
 
-    /**
-     * Wrapper to expose GT's IEnergyContainer as Forge's IEnergyStorage
-     */
-    private static class FEEnergyWrapper implements IEnergyStorage {
+    public static class FEEnergyWrapper implements IEnergyStorage {
 
         private final IEnergyContainer energyContainer;
-        @Nullable
         private final Direction facing;
 
-        private FEEnergyWrapper(IEnergyContainer energyContainer, @Nullable Direction facing) {
+        public FEEnergyWrapper(IEnergyContainer energyContainer, Direction facing) {
             this.energyContainer = energyContainer;
             this.facing = facing;
         }
 
         @Override
         public int receiveEnergy(int maxReceive, boolean simulate) {
-            if (!canReceive()) {
-                return 0;
-            }
+            if (!canReceive()) return 0;
 
-            // Mekanism compatibility: probe with 1 FE
             if (maxReceive == 1 && simulate) {
                 return energyContainer.getEnergyCanBeInserted() > 0L ? 1 : 0;
             }
 
-            // Convert FE to EU
-            long maxInEu = FeCompat.toEu(maxReceive, FeCompat.ratio(true));
+            long maxIn = maxReceive / FeCompat.ratio(true);
             long missing = energyContainer.getEnergyCanBeInserted();
             long voltage = energyContainer.getInputVoltage();
-            if (voltage <= 0) {
-                return 0;
+            maxIn = Math.min(missing, maxIn);
+            long maxAmp = Math.min(energyContainer.getInputAmperage(), maxIn / voltage);
+
+            if (ConfigHolder.INSTANCE.ignoreCableCapacity && energyContainer instanceof EnergyNetHandler) {
+                maxIn = maxReceive / FeCompat.ratio(true);
+                maxAmp = maxIn / voltage;
             }
 
-            maxInEu = Math.min(missing, maxInEu);
-            long maxAmp = Math.min(energyContainer.getInputAmperage(), maxInEu / voltage);
-            if (maxAmp < 1L) {
-                return 0;
-            }
+            if (maxAmp < 1L) return 0;
 
             if (!simulate) {
-                // Use acceptEnergyFromNetwork to properly go through GT's energy network logic
                 maxAmp = energyContainer.acceptEnergyFromNetwork(facing, voltage, maxAmp);
             }
 
-            // Convert EU back to FE for return value
-            return FeCompat.toFe(maxAmp * voltage, FeCompat.ratio(false));
+            return GTMTUtil.safeConvertEUToFE(maxAmp * voltage);
         }
 
         @Override
         public int extractEnergy(int maxExtract, boolean simulate) {
-            if (!canExtract()) {
-                return 0;
-            }
-
-            // Convert FE request to EU
-            long maxOutEu = FeCompat.toEu(maxExtract, FeCompat.ratio(true));
-            long stored = energyContainer.getEnergyStored();
-            long voltage = energyContainer.getOutputVoltage();
-            if (voltage <= 0) {
-                return 0;
-            }
-
-            // Calculate how much we can actually extract
-            long maxAmp = Math.min(energyContainer.getOutputAmperage(), maxOutEu / voltage);
-            long actualEu = Math.min(stored, maxAmp * voltage);
-            if (actualEu < voltage) {
-                return 0; // Not enough for even 1 amp
-            }
-
-            // Round down to full amps
-            actualEu = (actualEu / voltage) * voltage;
-
-            if (!simulate) {
-                energyContainer.removeEnergy(actualEu);
-            }
-
-            // Convert EU to FE for return value
-            return FeCompat.toFe(actualEu, FeCompat.ratio(false));
+            return 0;
         }
 
         @Override
         public int getEnergyStored() {
-            return FeCompat.toFe(energyContainer.getEnergyStored(), FeCompat.ratio(false));
+            return GTMTUtil.safeConvertEUToFE(energyContainer.getEnergyStored());
         }
 
         @Override
         public int getMaxEnergyStored() {
-            return FeCompat.toFe(energyContainer.getEnergyCapacity(), FeCompat.ratio(false));
+            return GTMTUtil.safeConvertEUToFE(energyContainer.getEnergyCapacity());
         }
 
         @Override
         public boolean canExtract() {
-            return energyContainer.outputsEnergy(facing);
+            return false;
         }
 
         @Override
         public boolean canReceive() {
-            return energyContainer.inputsEnergy(facing);
+            return energyContainer.inputsEnergy(this.facing);
         }
     }
 }
