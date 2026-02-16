@@ -1,6 +1,7 @@
 package com.hepdd.gtmthings.init;
 
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
+
 import com.hepdd.gtmthings.GTMThings;
 import sun.misc.Unsafe;
 
@@ -15,8 +16,6 @@ import java.lang.reflect.Field;
 public class OverclockingPatcher {
 
     private static final Unsafe UNSAFE;
-    private static volatile boolean patched = false;
-    private static final Object LOCK = new Object();
 
     static {
         try {
@@ -29,60 +28,42 @@ public class OverclockingPatcher {
     }
 
     public static void init() {
-        if (patched) {
-            return;
-        }
+        try {
+            GTMThings.LOGGER.info("Patching OverclockingLogic fields to enable sub-tick parallel and modify duration factors...");
 
-        synchronized (LOCK) {
-            if (patched) {
-                return;
-            }
+            setStaticDoubleField(OverclockingLogic.class, "STD_DURATION_FACTOR", 0.25 / 2.0);
+            setStaticDoubleField(OverclockingLogic.class, "STD_DURATION_FACTOR_INV", 4.0 * 2.0);
 
-            // Set patched flag FIRST to prevent infinite recursion when calling create()
-            patched = true;
+            setStaticDoubleField(OverclockingLogic.class, "PERFECT_DURATION_FACTOR", 0.125 / 2.0);
+            setStaticDoubleField(OverclockingLogic.class, "PERFECT_DURATION_FACTOR_INV", 8.0 * 2.0);
 
-            try {
-                GTMThings.LOGGER.info("Patching OverclockingLogic fields to enable sub-tick parallel and modify duration factors...");
+            setStaticDoubleField(OverclockingLogic.class, "PERFECT_HALF_DURATION_FACTOR", 0.25 / 2.0);
+            setStaticDoubleField(OverclockingLogic.class, "PERFECT_HALF_DURATION_FACTOR_INV", 4.0 * 2.0);
 
-                setStaticDoubleField(OverclockingLogic.class, "STD_DURATION_FACTOR", 0.25 / 2.0);
-                setStaticDoubleField(OverclockingLogic.class, "STD_DURATION_FACTOR_INV", 4.0 * 2.0);
+            setStaticDoubleField(OverclockingLogic.class, "STD_VOLTAGE_FACTOR", 4.0);
+            setStaticDoubleField(OverclockingLogic.class, "PERFECT_HALF_VOLTAGE_FACTOR", 2.0);
 
-                setStaticDoubleField(OverclockingLogic.class, "PERFECT_DURATION_FACTOR", 0.125 / 2.0);
-                setStaticDoubleField(OverclockingLogic.class, "PERFECT_DURATION_FACTOR_INV", 8.0 * 2.0);
+            double newStdDuration = 0.25 / 2.0;
+            double newPerfectDuration = 0.125 / 2.0;
+            double stdVoltage = 4.0;
 
-                setStaticDoubleField(OverclockingLogic.class, "PERFECT_HALF_DURATION_FACTOR", 0.25 / 2.0);
-                setStaticDoubleField(OverclockingLogic.class, "PERFECT_HALF_DURATION_FACTOR_INV", 4.0 * 2.0);
+            setStaticField(OverclockingLogic.class, "PERFECT_OVERCLOCK",
+                    OverclockingLogic.create(newPerfectDuration, stdVoltage, true));
 
-                setStaticDoubleField(OverclockingLogic.class, "STD_VOLTAGE_FACTOR", 4.0);
-                setStaticDoubleField(OverclockingLogic.class, "PERFECT_HALF_VOLTAGE_FACTOR", 2.0);
+            setStaticField(OverclockingLogic.class, "NON_PERFECT_OVERCLOCK",
+                    OverclockingLogic.create(newStdDuration, stdVoltage, true));
 
-                double newStdDuration = 0.25 / 2.0;
-                double newPerfectDuration = 0.125 / 2.0;
-                double stdVoltage = 4.0;
+            setStaticField(OverclockingLogic.class, "PERFECT_OVERCLOCK_SUBTICK",
+                    OverclockingLogic.create(newPerfectDuration, stdVoltage, true));
 
-                setStaticField(OverclockingLogic.class, "PERFECT_OVERCLOCK",
-                    OverclockingLogic.create(newPerfectDuration, stdVoltage, true)
-                );
+            setStaticField(OverclockingLogic.class, "NON_PERFECT_OVERCLOCK_SUBTICK",
+                    OverclockingLogic.create(newStdDuration, stdVoltage, true));
 
-                setStaticField(OverclockingLogic.class, "NON_PERFECT_OVERCLOCK",
-                    OverclockingLogic.create(newStdDuration, stdVoltage, true)
-                );
-
-                setStaticField(OverclockingLogic.class, "PERFECT_OVERCLOCK_SUBTICK",
-                    OverclockingLogic.create(newPerfectDuration, stdVoltage, true)
-                );
-
-                setStaticField(OverclockingLogic.class, "NON_PERFECT_OVERCLOCK_SUBTICK",
-                    OverclockingLogic.create(newStdDuration, stdVoltage, true)
-                );
-
-                GTMThings.LOGGER.info("Successfully patched OverclockingLogic fields!");
-                GTMThings.LOGGER.info("New duration factors: STD={}, PERFECT={}", newStdDuration, newPerfectDuration);
-
-            } catch (Exception e) {
-                GTMThings.LOGGER.error("Failed to patch OverclockingLogic fields", e);
-                patched = false; // Reset on failure so it can be retried
-            }
+            GTMThings.LOGGER.info("Successfully patched OverclockingLogic fields!");
+            GTMThings.LOGGER.info("New duration factors: STD={}, PERFECT={}", newStdDuration, newPerfectDuration);
+        } catch (Exception e) {
+            GTMThings.LOGGER.error("Failed to patch OverclockingLogic fields", e);
+            throw new RuntimeException("Critical: OverclockingLogic patching failed", e);
         }
     }
 
@@ -108,4 +89,3 @@ public class OverclockingPatcher {
         GTMThings.LOGGER.debug("Set {} = {}", fieldName, newValue);
     }
 }
-

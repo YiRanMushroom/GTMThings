@@ -1,7 +1,8 @@
 package com.hepdd.gtmthings.mixin;
 
-import com.hepdd.gtmthings.init.OverclockingPatcher;
 import net.minecraft.client.main.Main;
+
+import com.hepdd.gtmthings.init.OverclockingPatcher;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,4 +21,3 @@ public class MinecraftMainMixin {
         System.out.println("[GTMThings] OverclockingLogic patching completed");
     }
 }
-

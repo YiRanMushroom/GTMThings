@@ -7,6 +7,7 @@ import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.utils.GTUtil;
+
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -20,10 +21,8 @@ import static com.hepdd.gtmthings.GTMThings.LOGGER;
 @Mixin(OverclockingLogic.class)
 public interface OverclockingLogicMixin {
 
-
     @Shadow(remap = false)
     OverclockingLogic.OCResult runOverclockingLogic(OverclockingLogic.OCParams params, long maxVoltage);
-
 
     @Shadow(remap = false)
     static OverclockingLogic.OCResult subTickParallelOC(OverclockingLogic.@NotNull OCParams params,
