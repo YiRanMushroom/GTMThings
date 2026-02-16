@@ -5,7 +5,9 @@ package com.hepdd.gtmthings.forge;
 
 import com.gregtechceu.gtceu.api.capability.IEnergyContainer;
 import com.gregtechceu.gtceu.api.capability.compat.FeCompat;
-import com.gregtechceu.gtceu.api.capability.forge.GTCapability;
+import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.machine.trait.MachineTrait;
 
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -30,10 +32,10 @@ public class FEToEUProvider implements ICapabilityProvider {
 
     public static final ResourceLocation CAP_ID = GTMThings.id("fecapability");
 
-    private final BlockEntity blockEntity;
+    private final IMachineBlockEntity blockEntity;
 
     public FEToEUProvider(BlockEntity blockEntity) {
-        this.blockEntity = blockEntity;
+        this.blockEntity = (IMachineBlockEntity) blockEntity;
     }
 
     @NotNull
@@ -43,16 +45,32 @@ public class FEToEUProvider implements ICapabilityProvider {
             return LazyOptional.empty();
         }
 
-        // Dynamically get the GT energy container at query time (not at attach time)
-        LazyOptional<IEnergyContainer> gtCap = blockEntity.getCapability(GTCapability.CAPABILITY_ENERGY_CONTAINER, side);
+        // Directly access the MetaMachine to avoid capability query loops
+        MetaMachine machine = blockEntity.getMetaMachine();
+        if (machine == null) {
+            return LazyOptional.empty();
+        }
 
-        return gtCap.map(container -> {
-            // Provide FE cap if GT container can input OR output energy on this side
-            if (container.inputsEnergy(side) || container.outputsEnergy(side)) {
-                return ForgeCapabilities.ENERGY.<T>orEmpty(cap, LazyOptional.of(() -> new FEEnergyWrapper(container, side)));
+        // Find IEnergyContainer trait directly from machine traits
+        IEnergyContainer container = null;
+        for (MachineTrait trait : machine.getTraits()) {
+            if (trait instanceof IEnergyContainer energyContainer) {
+                container = energyContainer;
+                break;
             }
-            return LazyOptional.<T>empty();
-        }).orElse(LazyOptional.empty());
+        }
+
+        if (container == null) {
+            return LazyOptional.empty();
+        }
+
+        // Provide FE cap if GT container can input OR output energy on this side
+        if (container.inputsEnergy(side) || container.outputsEnergy(side)) {
+            IEnergyContainer finalContainer = container;
+            return ForgeCapabilities.ENERGY.orEmpty(cap, LazyOptional.of(() -> new FEEnergyWrapper(finalContainer, side)));
+        }
+
+        return LazyOptional.empty();
     }
 
     /**
