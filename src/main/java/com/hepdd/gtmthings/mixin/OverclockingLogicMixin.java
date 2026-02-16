@@ -119,7 +119,7 @@ public interface OverclockingLogicMixin {
 
         /// always apply overclocking at least once, even if the energy is not correct.
         if (ocLevel == 0) {
-            return new OverclockingLogic.OCResult(Math.pow(4.0, ocLevel), 0.25, ocLevel, 1);
+            return new OverclockingLogic.OCResult(1.0, 0.25, 1, 1);
         }
 
         return new OverclockingLogic.OCResult(Math.pow(4.0, ocLevel), durationMultiplier, ocLevel, (int) parallel);
