@@ -13,8 +13,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-import static com.hepdd.gtmthings.GTMThings.LOGGER;
-
 /**
  * Inspired by: https://github.com/GregTech-Intergalactical/Gregfluxology
  */
@@ -61,7 +59,7 @@ public interface OverclockingLogicMixin {
         int maxParallels;
         if (!shouldParallel) {
             maxParallels = 1;
-        } else if ((Math.pow(OverclockingLogic.PERFECT_DURATION_FACTOR, OCs) * recipe.duration) > 1) {
+        } else if ((Math.pow(0.125, OCs) * recipe.duration) > 1) {
             maxParallels = 512;
         } else {
             maxParallels = ParallelLogic.getParallelAmount(machine, recipe, Integer.MAX_VALUE);
@@ -84,9 +82,9 @@ public interface OverclockingLogicMixin {
         int ocAmount = params.ocAmount();
         int maxParallels = params.maxParallels();
 
-        LOGGER.info("Starting heating coil OC calculation with params: " +
-                "EUt={}, duration={}, OC amount={}, max parallels={}, recipeTemp={}, machineTemp={}",
-                eut, duration, ocAmount, maxParallels, recipeTemp, machineTemp);
+        // LOGGER.info("Starting heating coil OC calculation with params: " +
+        // "EUt={}, duration={}, OC amount={}, max parallels={}, recipeTemp={}, machineTemp={}",
+        // eut, duration, ocAmount, maxParallels, recipeTemp, machineTemp);
 
         double parallel = 1;
         boolean shouldParallel = false;
@@ -99,10 +97,9 @@ public interface OverclockingLogicMixin {
             if (potentialEUt > maxVoltage) break;
 
             // If we're already doing parallels or our duration would go below 1, try parallels
-            double dFactor = 8.0;
+            double dFactor = 0.125;
             if (shouldParallel || duration * dFactor < 1) {
-                // Check if parallels can be multiplied without going over the maximum
-                double pFactor = 1 / 8.0;
+                double pFactor = 8.0;
                 double potentialParallel = parallel * pFactor;
                 if (potentialParallel > maxParallels) break;
                 parallel = potentialParallel;
@@ -117,8 +114,13 @@ public interface OverclockingLogicMixin {
             ocLevel++;
         }
 
-        LOGGER.info("Calculated OC result: EUt={}, duration={}, ocLevel={}, parallel={}",
-                eut, duration, ocLevel, parallel);
+        // LOGGER.info("Calculated OC result: EUt={}, duration={}, ocLevel={}, parallel={}",
+        // eut, duration, ocLevel, parallel);
+
+        /// always apply overclocking at least once, even if the energy is not correct.
+        if (ocLevel == 0) {
+            return new OverclockingLogic.OCResult(Math.pow(4.0, ocLevel), 0.25, ocLevel, 1);
+        }
 
         return new OverclockingLogic.OCResult(Math.pow(4.0, ocLevel), durationMultiplier, ocLevel, (int) parallel);
     }

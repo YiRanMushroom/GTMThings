@@ -2,10 +2,11 @@ package com.hepdd.gtmthings.init;
 
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
 
-import com.hepdd.gtmthings.GTMThings;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+
+import static com.hepdd.gtmthings.GTMThings.LOGGER;
 
 /**
  * Patches OverclockingLogic interface static fields after mixin stage completes.
@@ -29,22 +30,30 @@ public class OverclockingPatcher {
 
     public static void init() {
         try {
-            GTMThings.LOGGER.info("Patching OverclockingLogic fields to enable sub-tick parallel and modify duration factors...");
+            LOGGER.info("Patching OverclockingLogic fields to enable sub-tick parallel and modify duration factors...");
 
-            setStaticDoubleField(OverclockingLogic.class, "STD_DURATION_FACTOR", 0.25 / 2.0);
-            setStaticDoubleField(OverclockingLogic.class, "STD_DURATION_FACTOR_INV", 4.0 * 2.0);
+            // double fields are already inlined, cannot modify them so fuck that.
 
-            setStaticDoubleField(OverclockingLogic.class, "PERFECT_DURATION_FACTOR", 0.125 / 2.0);
-            setStaticDoubleField(OverclockingLogic.class, "PERFECT_DURATION_FACTOR_INV", 8.0 * 2.0);
+            // setStaticDoubleField(OverclockingLogic.class, "STD_DURATION_FACTOR", 0.25);
+            // setStaticDoubleField(OverclockingLogic.class, "STD_DURATION_FACTOR_INV", 4.0);
+            //
+            // setStaticDoubleField(OverclockingLogic.class, "PERFECT_DURATION_FACTOR", 0.125);
+            // setStaticDoubleField(OverclockingLogic.class, "PERFECT_DURATION_FACTOR_INV", 8.0);
+            //
+            // setStaticDoubleField(OverclockingLogic.class, "PERFECT_HALF_DURATION_FACTOR", 0.25);
+            // setStaticDoubleField(OverclockingLogic.class, "PERFECT_HALF_DURATION_FACTOR_INV", 4.0);
+            //
+            // setStaticDoubleField(OverclockingLogic.class, "STD_VOLTAGE_FACTOR", 4.0);
+            // setStaticDoubleField(OverclockingLogic.class, "PERFECT_HALF_VOLTAGE_FACTOR", 2.0);
+            //
+            // LOGGER.info("Double field STD_DURATION_FACTOR is now {}", OverclockingLogic.STD_DURATION_FACTOR);
+            // LOGGER.info("Double field PERFECT_DURATION_FACTOR is now {}", OverclockingLogic.PERFECT_DURATION_FACTOR);
+            // LOGGER.info("Double field STD_VOLTAGE_FACTOR is now {}", OverclockingLogic.STD_VOLTAGE_FACTOR);
+            // LOGGER.info("Double field PERFECT_HALF_VOLTAGE_FACTOR is now {}",
+            // OverclockingLogic.PERFECT_HALF_VOLTAGE_FACTOR);
 
-            setStaticDoubleField(OverclockingLogic.class, "PERFECT_HALF_DURATION_FACTOR", 0.25 / 2.0);
-            setStaticDoubleField(OverclockingLogic.class, "PERFECT_HALF_DURATION_FACTOR_INV", 4.0 * 2.0);
-
-            setStaticDoubleField(OverclockingLogic.class, "STD_VOLTAGE_FACTOR", 4.0);
-            setStaticDoubleField(OverclockingLogic.class, "PERFECT_HALF_VOLTAGE_FACTOR", 2.0);
-
-            double newStdDuration = 0.25 / 2.0;
-            double newPerfectDuration = 0.125 / 2.0;
+            double newStdDuration = 0.25;
+            double newPerfectDuration = 0.125;
             double stdVoltage = 4.0;
 
             setStaticField(OverclockingLogic.class, "PERFECT_OVERCLOCK",
@@ -59,10 +68,10 @@ public class OverclockingPatcher {
             setStaticField(OverclockingLogic.class, "NON_PERFECT_OVERCLOCK_SUBTICK",
                     OverclockingLogic.create(newStdDuration, stdVoltage, true));
 
-            GTMThings.LOGGER.info("Successfully patched OverclockingLogic fields!");
-            GTMThings.LOGGER.info("New duration factors: STD={}, PERFECT={}", newStdDuration, newPerfectDuration);
+            LOGGER.info("Successfully patched OverclockingLogic fields!");
+            LOGGER.info("New duration factors: STD={}, PERFECT={}", newStdDuration, newPerfectDuration);
         } catch (Exception e) {
-            GTMThings.LOGGER.error("Failed to patch OverclockingLogic fields", e);
+            LOGGER.error("Failed to patch OverclockingLogic fields", e);
             throw new RuntimeException("Critical: OverclockingLogic patching failed", e);
         }
     }
@@ -75,7 +84,7 @@ public class OverclockingPatcher {
 
         UNSAFE.putObject(base, offset, newValue);
 
-        GTMThings.LOGGER.info("Set {} = {}", fieldName, newValue);
+        LOGGER.info("Set {} = {}", fieldName, newValue);
     }
 
     private static void setStaticDoubleField(Class<?> clazz, String fieldName, double newValue) throws Exception {
@@ -86,6 +95,6 @@ public class OverclockingPatcher {
 
         UNSAFE.putDouble(base, offset, newValue);
 
-        GTMThings.LOGGER.debug("Set {} = {}", fieldName, newValue);
+        LOGGER.info("Set {} = {}", fieldName, newValue);
     }
 }
