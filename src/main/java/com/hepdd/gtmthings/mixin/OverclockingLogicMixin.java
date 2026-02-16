@@ -47,7 +47,8 @@ public interface OverclockingLogicMixin {
     @NotNull
     default ModifierFunction getModifier(MetaMachine machine, GTRecipe recipe,
                                          long maxVoltage, boolean shouldParallel) {
-        LOGGER.info("Calculating overclocking for recipe with max voltage {} and shouldParallel {}", maxVoltage, shouldParallel);
+        // LOGGER.info("Calculating overclocking for recipe with max voltage {} and shouldParallel {}", maxVoltage,
+        // shouldParallel);
 
         long EUt = Math.abs(RecipeHelper.getRealEUt(recipe));
 
@@ -69,5 +70,56 @@ public interface OverclockingLogicMixin {
         OverclockingLogic.OCParams params = new OverclockingLogic.OCParams(EUt, recipe.duration, OCs, maxParallels);
         OverclockingLogic.OCResult result = runOverclockingLogic(params, maxVoltage);
         return result.toModifier();
+    }
+
+    /**
+     * @author Yiran
+     * @reason change perfect OC amount logic
+     */
+    @Overwrite(remap = false)
+    @NotNull
+    static OverclockingLogic.OCResult heatingCoilOC(OverclockingLogic.OCParams params, long maxVoltage, int recipeTemp, int machineTemp) {
+        double duration = params.duration();
+        double eut = params.eut();
+        int ocAmount = params.ocAmount();
+        int maxParallels = params.maxParallels();
+
+        LOGGER.info("Starting heating coil OC calculation with params: " +
+                "EUt={}, duration={}, OC amount={}, max parallels={}, recipeTemp={}, machineTemp={}",
+                eut, duration, ocAmount, maxParallels, recipeTemp, machineTemp);
+
+        double parallel = 1;
+        boolean shouldParallel = false;
+        int ocLevel = 0;
+        double durationMultiplier = 1;
+
+        while (ocAmount-- > 0) {
+            // Check if EUt can be multiplied again without going over the max
+            double potentialEUt = eut * 4.0;
+            if (potentialEUt > maxVoltage) break;
+
+            // If we're already doing parallels or our duration would go below 1, try parallels
+            double dFactor = 8.0;
+            if (shouldParallel || duration * dFactor < 1) {
+                // Check if parallels can be multiplied without going over the maximum
+                double pFactor = 1 / 8.0;
+                double potentialParallel = parallel * pFactor;
+                if (potentialParallel > maxParallels) break;
+                parallel = potentialParallel;
+                shouldParallel = true;
+            } else {
+                duration *= dFactor;
+                durationMultiplier *= dFactor;
+            }
+
+            // Only set EUt after checking parallels - no need to OC if parallels would be too high
+            eut = potentialEUt;
+            ocLevel++;
+        }
+
+        LOGGER.info("Calculated OC result: EUt={}, duration={}, ocLevel={}, parallel={}",
+                eut, duration, ocLevel, parallel);
+
+        return new OverclockingLogic.OCResult(Math.pow(4.0, ocLevel), durationMultiplier, ocLevel, (int) parallel);
     }
 }
