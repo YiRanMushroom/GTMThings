@@ -53,15 +53,18 @@ public class FEToEUProvider extends CapabilityCompatProvider {
 
         @Override
         public int receiveEnergy(int maxReceive, boolean simulate) {
-            if (!canReceive()) return 0;
-
             if (maxReceive == 1 && simulate) {
                 return energyContainer.getEnergyCanBeInserted() > 0L ? 1 : 0;
             }
 
             long maxIn = maxReceive / FeCompat.ratio(true);
             long missing = energyContainer.getEnergyCanBeInserted();
+
+            if (missing <= 0) return 0;
+
             long voltage = energyContainer.getInputVoltage();
+            if (voltage <= 0) return 0;
+
             maxIn = Math.min(missing, maxIn);
             long maxAmp = Math.min(energyContainer.getInputAmperage(), maxIn / voltage);
 
@@ -70,7 +73,18 @@ public class FEToEUProvider extends CapabilityCompatProvider {
                 maxAmp = maxIn / voltage;
             }
 
-            if (maxAmp < 1L) return 0;
+            if (maxAmp < 1L) {
+                if (maxIn <= 0) return 0;
+
+                if (!simulate) {
+                    long inserted = energyContainer.acceptEnergyFromNetwork(facing, maxIn, 1);
+                    if (inserted <= 0) return 0;
+                    return GTMTUtil.safeConvertEUToFE(maxIn);
+                } else {
+                    if (!energyContainer.inputsEnergy(facing)) return 0;
+                    return GTMTUtil.safeConvertEUToFE(maxIn);
+                }
+            }
 
             if (!simulate) {
                 maxAmp = energyContainer.acceptEnergyFromNetwork(facing, voltage, maxAmp);
