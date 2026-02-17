@@ -114,9 +114,6 @@ public interface OverclockingLogicMixin {
             ocLevel++;
         }
 
-        // LOGGER.info("Calculated OC result: EUt={}, duration={}, ocLevel={}, parallel={}",
-        // eut, duration, ocLevel, parallel);
-
         return new OverclockingLogic.OCResult(Math.pow(4.0, ocLevel), durationMultiplier, ocLevel, (int) parallel);
     }
 }

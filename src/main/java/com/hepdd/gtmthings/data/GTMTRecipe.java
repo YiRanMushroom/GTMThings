@@ -80,13 +80,16 @@ public class GTMTRecipe {
 
         ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_interface"))
                 .inputItems(GTMachines.ENERGY_INPUT_HATCH[1].asStack())
-                .inputItems(CustomItems.WIRELESS_ENERGY_RECEIVE_COVER_LV_4A.asStack())
-                .inputItems(Items.ENDER_PEARL, 16)
-                .inputItems(CustomTags.LV_CIRCUITS, 4)
-                .inputItems(TagPrefix.spring, GTMaterials.Iron, 4)
-                .inputItems(TagPrefix.foil, GTMaterials.Steel, 16)
-                .inputFluids(GTMaterials.SolderingAlloy.getFluid(144))
+                .inputItems(CustomItems.WIRELESS_ENERGY_RECEIVE_COVER_LV_4A.asStack(4))
                 .outputItems(WirelessMachines.WIRELESS_ENERGY_INTERFACE.asStack())
+                .duration(400)
+                .EUt(GTValues.VA[GTValues.LV])
+                .save(provider);
+
+        ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_proxy"))
+                .inputItems(GTMachines.ENERGY_OUTPUT_HATCH[1].asStack())
+                .inputItems(CustomItems.WIRELESS_ENERGY_RECEIVE_COVER_LV_4A.asStack(4))
+                .outputItems(WirelessMachines.WIRELESS_ENERGY_PROXY.asStack())
                 .duration(400)
                 .EUt(GTValues.VA[GTValues.LV])
                 .save(provider);
