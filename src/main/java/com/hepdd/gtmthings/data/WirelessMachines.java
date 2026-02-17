@@ -14,9 +14,9 @@ import com.gregtechceu.gtceu.utils.FormattingUtil;
 import net.minecraft.network.chat.Component;
 
 import com.hepdd.gtmthings.GTMThings;
+import com.hepdd.gtmthings.common.block.machine.electric.WirelessEnergyAccessor;
 import com.hepdd.gtmthings.common.block.machine.electric.WirelessEnergyInterface;
 import com.hepdd.gtmthings.common.block.machine.electric.WirelessEnergyMonitor;
-import com.hepdd.gtmthings.common.block.machine.electric.WirelessEnergyProxy;
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.WirelessEnergyHatchPartMachine;
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.computation.WirelessOpticalComputationHatchMachine;
 import org.jetbrains.annotations.NotNull;
@@ -50,8 +50,8 @@ public class WirelessMachines {
             .tier(IV)
             .register();
 
-    public static final MachineDefinition WIRELESS_ENERGY_PROXY = GTMTHINGS_REGISTRATE
-            .machine("wireless_energy_proxy", WirelessEnergyProxy::new)
+    public static final MachineDefinition WIRELESS_ENERGY_ACCESSOR = GTMTHINGS_REGISTRATE
+            .machine("wireless_energy_accessor", WirelessEnergyAccessor::new)
             .rotationState(RotationState.ALL)
             .overlayTieredHullRenderer("energy_hatch.output")
             .tier(IV)

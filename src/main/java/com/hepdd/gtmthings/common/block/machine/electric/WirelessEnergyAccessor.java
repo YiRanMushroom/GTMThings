@@ -53,9 +53,9 @@ import static com.hepdd.gtmthings.utils.TeamUtil.GetName;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class WirelessEnergyProxy extends TieredIOPartMachine implements IInteractedMachine, IMachineLife, IWirelessEnergyContainerHolder, IUIMachine {
+public class WirelessEnergyAccessor extends TieredIOPartMachine implements IInteractedMachine, IMachineLife, IWirelessEnergyContainerHolder, IUIMachine {
 
-    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(WirelessEnergyProxy.class,
+    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(WirelessEnergyAccessor.class,
             MetaMachine.MANAGED_FIELD_HOLDER);
 
     @Override
@@ -88,7 +88,7 @@ public class WirelessEnergyProxy extends TieredIOPartMachine implements IInterac
 
     private long lastAverageEnergyIOPerTick = 0;
 
-    public WirelessEnergyProxy(IMachineBlockEntity holder) {
+    public WirelessEnergyAccessor(IMachineBlockEntity holder) {
         super(holder, GTValues.MAX, IO.OUT);
     }
 

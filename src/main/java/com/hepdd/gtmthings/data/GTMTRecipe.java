@@ -86,10 +86,10 @@ public class GTMTRecipe {
                 .EUt(GTValues.VA[GTValues.LV])
                 .save(provider);
 
-        ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_proxy"))
+        ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("wireless_energy_accessor"))
                 .inputItems(GTMachines.ENERGY_OUTPUT_HATCH[1].asStack())
                 .inputItems(CustomItems.WIRELESS_ENERGY_RECEIVE_COVER_LV_4A.asStack(4))
-                .outputItems(WirelessMachines.WIRELESS_ENERGY_PROXY.asStack())
+                .outputItems(WirelessMachines.WIRELESS_ENERGY_ACCESSOR.asStack())
                 .duration(400)
                 .EUt(GTValues.VA[GTValues.LV])
                 .save(provider);
