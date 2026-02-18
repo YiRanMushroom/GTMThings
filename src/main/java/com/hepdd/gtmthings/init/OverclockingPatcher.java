@@ -57,10 +57,10 @@ public class OverclockingPatcher {
             double stdVoltage = 4.0;
 
             setStaticField(OverclockingLogic.class, "PERFECT_OVERCLOCK",
-                    OverclockingLogic.create(newPerfectDuration, stdVoltage, false));
+                    OverclockingLogic.create(newPerfectDuration, stdVoltage, true));
 
             setStaticField(OverclockingLogic.class, "NON_PERFECT_OVERCLOCK",
-                    OverclockingLogic.create(newStdDuration, stdVoltage, false));
+                    OverclockingLogic.create(newStdDuration, stdVoltage, true));
 
             setStaticField(OverclockingLogic.class, "PERFECT_OVERCLOCK_SUBTICK",
                     OverclockingLogic.create(newPerfectDuration, stdVoltage, true));
