@@ -11,6 +11,7 @@ import com.gregtechceu.gtceu.api.machine.feature.IInteractedMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
 import com.gregtechceu.gtceu.api.machine.feature.IUIMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredIOPartMachine;
+import com.gregtechceu.gtceu.api.machine.trait.NotifiableEnergyContainer;
 import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.utils.GTUtil;
 
@@ -88,8 +89,21 @@ public class WirelessEnergyAccessor extends TieredIOPartMachine implements IInte
 
     private long lastAverageEnergyIOPerTick = 0;
 
+    @Persisted
+    public final NotifiableEnergyContainer energyContainer;
+
     public WirelessEnergyAccessor(IMachineBlockEntity holder) {
         super(holder, GTValues.MAX, IO.OUT);
+        this.energyContainer = createEnergyContainer();
+    }
+
+    @SuppressWarnings("unused")
+    protected NotifiableEnergyContainer createEnergyContainer(Object... args) {
+        return new WirelessEnergyOutputContainer(this);
+    }
+
+    protected NotifiableEnergyContainer createEnergyContainer() {
+        return createEnergyContainer(new Object[0]);
     }
 
     @Override
@@ -243,5 +257,91 @@ public class WirelessEnergyAccessor extends TieredIOPartMachine implements IInte
                         .setButtonBackground(ResourceBorderTexture.BUTTON_COMMON)
                         .setBackground(ColorPattern.BLACK.rectTexture())
                         .setValue(GTValues.VNF[setTier]));
+    }
+
+    private static class WirelessEnergyOutputContainer extends NotifiableEnergyContainer {
+
+        private final WirelessEnergyAccessor machine;
+
+        public WirelessEnergyOutputContainer(WirelessEnergyAccessor machine) {
+            super(machine, Long.MAX_VALUE, 0, 0, Long.MAX_VALUE, Integer.MAX_VALUE);
+            this.machine = machine;
+        }
+
+        @Override
+        public long getEnergyStored() {
+            WirelessEnergyContainer container = machine.getWirelessEnergyContainer();
+            if (container == null) return 0;
+            BigInteger storage = container.getStorage();
+            if (storage == null) return 0;
+            return storage.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0 ? Long.MAX_VALUE : storage.longValue();
+        }
+
+        @Override
+        public long getEnergyCapacity() {
+            return Long.MAX_VALUE;
+        }
+
+        @Override
+        public long getInputVoltage() {
+            return 0;
+        }
+
+        @Override
+        public long getInputAmperage() {
+            return 0;
+        }
+
+        @Override
+        public long getOutputVoltage() {
+            return machine.active ? machine.voltage : 0;
+        }
+
+        @Override
+        public long getOutputAmperage() {
+            return machine.active ? machine.amps : 0;
+        }
+
+        @Override
+        public boolean inputsEnergy(Direction side) {
+            return false;
+        }
+
+        @Override
+        public boolean outputsEnergy(Direction side) {
+            if (!machine.active) return false;
+            return side == machine.getFrontFacing();
+        }
+
+        @Override
+        public long acceptEnergyFromNetwork(Direction side, long voltage, long amperage) {
+            return 0;
+        }
+
+        @Override
+        public long changeEnergy(long differenceAmount) {
+            if (differenceAmount >= 0) return 0;
+
+            long energyToExtract = -differenceAmount;
+            if (energyToExtract <= 0) return 0;
+
+            WirelessEnergyContainer container = machine.getWirelessEnergyContainer();
+            if (container == null) return 0;
+
+            BigInteger availableEnergy = container.getStorage();
+            if (availableEnergy == null || availableEnergy.compareTo(BigInteger.ZERO) <= 0) return 0;
+
+            long availableEnergyLong = availableEnergy.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0 ?
+                    Long.MAX_VALUE : availableEnergy.longValue();
+
+            long actualExtract = Math.min(energyToExtract, availableEnergyLong);
+            long extracted = container.removeEnergy(actualExtract, machine);
+
+            if (extracted > 0) {
+                machine.energyIOPerSec += extracted;
+            }
+
+            return -extracted;
+        }
     }
 }
