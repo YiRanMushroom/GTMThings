@@ -22,20 +22,20 @@ public interface OverclockingLogicMixin {
     @Shadow(remap = false)
     OverclockingLogic.OCResult runOverclockingLogic(OverclockingLogic.OCParams params, long maxVoltage);
 
-    @Shadow(remap = false)
-    static OverclockingLogic.OCResult subTickParallelOC(OverclockingLogic.@NotNull OCParams params,
-                                                        long maxV, double durationFactor, double voltageFactor) {
-        return null;
-    }
+    // @Shadow(remap = false)
+    // static OverclockingLogic.OCResult subTickParallelOC(OverclockingLogic.@NotNull OCParams params,
+    // long maxV, double durationFactor, double voltageFactor) {
+    // return null;
+    // }
 
-    /**
-     * @author Yiran
-     * @reason Always allow sub-tick parallel
-     */
-    @Overwrite(remap = false)
-    static OverclockingLogic create(double durationFactor, double voltageFactor, boolean subtick) {
-        return (params, maxV) -> subTickParallelOC(params, maxV, durationFactor, voltageFactor);
-    }
+    // /**
+    // * @author Yiran
+    // * @reason Always allow sub-tick parallel
+    // */
+    // @Overwrite(remap = false)
+    // static OverclockingLogic create(double durationFactor, double voltageFactor, boolean subtick) {
+    // return (params, maxV) -> subTickParallelOC(params, maxV, durationFactor, voltageFactor);
+    // }
 
     /**
      * @author Yiran
