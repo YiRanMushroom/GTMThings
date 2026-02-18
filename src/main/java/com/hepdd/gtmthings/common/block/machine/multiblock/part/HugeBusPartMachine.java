@@ -1,6 +1,5 @@
 package com.hepdd.gtmthings.common.block.machine.multiblock.part;
 
-import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel;
@@ -61,7 +60,7 @@ public class HugeBusPartMachine extends TieredIOPartMachine implements IDistinct
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(HugeBusPartMachine.class,
             TieredIOPartMachine.MANAGED_FIELD_HOLDER);
 
-    public static final int INV_MULTIPLE = 2;
+    // public static final int INV_MULTIPLE = 2;
     @Getter
     @Persisted
     protected final NotifiableItemStackHandler inventory;
@@ -99,8 +98,7 @@ public class HugeBusPartMachine extends TieredIOPartMachine implements IDistinct
     }
 
     protected int getInventorySize() {
-        if (getTier() < GTValues.EV) return 1 + getTier();
-        else return (1 + getTier()) * INV_MULTIPLE;
+        return (1 + getTier()) * (1 + getTier());
     }
 
     protected NotifiableItemStackHandler createInventory(Object... args) {

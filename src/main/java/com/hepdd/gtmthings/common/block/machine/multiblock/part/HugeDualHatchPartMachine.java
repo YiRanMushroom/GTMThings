@@ -103,7 +103,6 @@ public class HugeDualHatchPartMachine extends HugeBusPartMachine {
 
     @Override
     protected void refundAll(ClickData clickData) {
-        // 退不回去流体
         super.refundAll(clickData);
         if (hasFluidTransfer) {
             this.tank.exportToNearby(this.getFrontFacing());
