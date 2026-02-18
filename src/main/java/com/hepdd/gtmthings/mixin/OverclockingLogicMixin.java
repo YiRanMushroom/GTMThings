@@ -5,9 +5,9 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
-import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.utils.GTUtil;
 
+import com.hepdd.gtmthings.utils.Logics;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -64,7 +64,7 @@ public interface OverclockingLogicMixin {
         } else if ((Math.pow(0.125, OCs) * recipe.duration) > 1) {
             maxParallels = 512;
         } else {
-            maxParallels = ParallelLogic.getParallelAmount(machine, recipe, Integer.MAX_VALUE);
+            maxParallels = Logics.originalGetParallelAmount(machine, recipe, Integer.MAX_VALUE);
         }
 
         OverclockingLogic.OCParams params = new OverclockingLogic.OCParams(EUt, recipe.duration, OCs, maxParallels);
