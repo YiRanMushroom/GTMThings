@@ -48,6 +48,8 @@ public interface OverclockingLogicMixin {
         // LOGGER.info("Calculating overclocking for recipe with max voltage {} and shouldParallel {}", maxVoltage,
         // shouldParallel);
 
+        shouldParallel = true; // Force enable sub-tick parallel for all recipes
+
         long EUt = Math.abs(RecipeHelper.getRealEUt(recipe));
 
         int recipeTier = GTUtil.getTierByVoltage(EUt);
