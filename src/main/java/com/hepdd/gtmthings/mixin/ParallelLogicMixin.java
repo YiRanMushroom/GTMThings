@@ -9,13 +9,13 @@ import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(ParallelLogic.class)
 public class ParallelLogicMixin {
-
-    /**
-     * @author Yiran
-     * @reason Disable this check so we always use sub-tick parallel
-     */
-    @Overwrite(remap = false)
-    public static int getParallelAmount(MetaMachine machine, GTRecipe recipe, int parallelLimit) {
-        return Math.min(parallelLimit, 1);
-    }
+//
+//    /**
+//     * @author Yiran
+//     * @reason Disable this check so we always use sub-tick parallel
+//     */
+//    @Overwrite(remap = false)
+//    public static int getParallelAmount(MetaMachine machine, GTRecipe recipe, int parallelLimit) {
+//        return Math.min(parallelLimit, 1);
+//    }
 }

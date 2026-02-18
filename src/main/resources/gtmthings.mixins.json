@@ -5,6 +5,7 @@
   "minVersion": "0.8",
   "mixins": [
     "ForgeCommonEventListenerMixin",
+    "GTRecipeModifiersMixin",
     "OverclockingLogicMixin",
     "ParallelLogicMixin"
   ],
@@ -15,6 +16,6 @@
     "defaultRequire": 1
   },
   "mixinextras": {
-    "minVersion": "0.4.1"
+    "minVersion": "0.5.3"
   }
 }
