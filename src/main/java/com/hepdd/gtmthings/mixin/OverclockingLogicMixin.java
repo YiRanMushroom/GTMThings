@@ -39,6 +39,67 @@ public interface OverclockingLogicMixin {
 
     /**
      * @author Yiran
+     * @reason Make it more sensible
+     */
+    @Overwrite(remap = false)
+    static OverclockingLogic.OCResult subTickParallelOC(OverclockingLogic.OCParams params, long maxVoltage, double durationFactor,
+                                                        double voltageFactor) {
+        double duration = params.duration();
+        double eut = params.eut();
+        int ocAmount = params.ocAmount();
+        int maxParallels = params.maxParallels();
+
+        double parallel = 1;
+        boolean shouldParallel = false;
+        int ocLevel = 0;
+        double durationMultiplier = 1;
+
+        while (ocAmount-- > 0) {
+            // Check if EUt can be multiplied again without going over the max
+            double potentialEUt = eut * voltageFactor;
+            if (potentialEUt > maxVoltage) break;
+
+            // If we're already doing parallels or our duration would go below 1, try parallels
+            if (shouldParallel || duration * durationFactor < 1) {
+                // Check if parallels can be multiplied without going over the maximum
+                double potentialParallel = parallel / durationFactor;
+                if (potentialParallel > maxParallels) {
+                    // If we can't do the full parallel increase, try to do as much as possible
+                    potentialParallel = maxParallels;
+                    // Calculate the effective duration factor for the partial parallel increase
+                    double effectiveDurationFactor = parallel / potentialParallel;
+                    duration *= effectiveDurationFactor;
+                    durationMultiplier *= effectiveDurationFactor;
+                    parallel = potentialParallel;
+                    break;
+                }
+                parallel = potentialParallel;
+                shouldParallel = true;
+            } else {
+                duration *= durationFactor;
+                durationMultiplier *= durationFactor;
+            }
+
+            // Only set EUt after checking parallels - no need to OC if parallels would be too high
+            eut = potentialEUt;
+            ocLevel++;
+        }
+
+        return new OverclockingLogic.OCResult(Math.pow(voltageFactor, ocLevel), durationMultiplier, ocLevel, (int) parallel);
+    }
+
+    /**
+     * @author Yiran
+     * @reason Make it more sensible, and always allow sub-tick parallel
+     */
+    @Overwrite(remap = false)
+    static OverclockingLogic.OCResult subTickNonParallelOC(OverclockingLogic.OCParams params, long maxVoltage, double durationFactor,
+                                                           double voltageFactor) {
+        return subTickParallelOC(params, maxVoltage, durationFactor, voltageFactor);
+    }
+
+    /**
+     * @author Yiran
      * @reason Always allow sub-tick parallel
      */
     @Overwrite(remap = false)
