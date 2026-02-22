@@ -21,7 +21,7 @@ public class Recipes {
                 .outputItems(Multiblocks.SMART_ASSEMBLY_FACTORY.getItem())
                 .circuitMeta(24)
                 .duration(20 * 60)
-                .inputEU(GTValues.VA[GTValues.UV])
+                .EUt(GTValues.VA[GTValues.UV])
                 .save(provider);
     }
 }
