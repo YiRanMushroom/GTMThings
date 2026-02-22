@@ -8,6 +8,7 @@ import net.minecraft.data.recipes.FinishedRecipe;
 
 import com.hepdd.gtmthings.common.registry.GTMTRegistration;
 import com.hepdd.gtmthings.data.GTMTRecipe;
+import com.hepdd.gtmthings.yiran.data.Recipes;
 
 import java.util.function.Consumer;
 
@@ -30,5 +31,6 @@ public class GTMTGTAddon implements IGTAddon {
     @Override
     public void addRecipes(Consumer<FinishedRecipe> provider) {
         GTMTRecipe.init(provider);
+        Recipes.init(provider);
     }
 }

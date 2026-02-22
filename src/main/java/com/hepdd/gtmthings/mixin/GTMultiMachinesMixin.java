@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.common.data.machines.GTMultiMachines;
 
 import net.minecraft.world.level.block.Block;
 
+import com.hepdd.gtmthings.yiran.data.Multiblocks;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -15,6 +16,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -43,5 +46,10 @@ public class GTMultiMachinesMixin {
         return Stream.concat(Stream.concat(original.call(instance, from, to).stream(),
                 PartAbility.SUBSTATION_INPUT_ENERGY.getBlockRange(from, to).stream()),
                 PartAbility.INPUT_LASER.getBlockRange(from, to).stream()).toList();
+    }
+
+    @Inject(method = "<clinit>", at = @At("TAIL"))
+    private static void onClinit(CallbackInfo ci) {
+        Multiblocks.init();
     }
 }

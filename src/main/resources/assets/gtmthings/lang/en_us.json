@@ -267,6 +267,7 @@
   "block.gtmthings.uxv_programmablec_hatch": "§eUXV§r Programable Hatch",
   "block.gtmthings.zpm_programmablec_hatch": "§cZPM§r Programable Hatch",
   "block.gtmthings.max_programmablec_hatch": "§c§lMAX§r Programable Hatch",
+  "block.gtmthings.smart_assembly_factory": "Smart Assembly Factory",
   "gtmthings.creative_tooltip": "§7You just need Creative Mode§7 to use this",
   "gtmthings.universal.disabled": "Multiblock Sharing §4Disabled",
   "gtmthings.machine.energy_hatch.input.tooltip": "Energy Input for Multiblocks",

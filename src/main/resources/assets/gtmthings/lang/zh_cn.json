@@ -266,6 +266,7 @@
   "block.gtmthings.uxv_programmablec_hatch": "§eUXV§r可编程仓",
   "block.gtmthings.zpm_programmablec_hatch": "§cZPM§r可编程仓",
   "block.gtmthings.max_programmablec_hatch": "§c§lMAX§r可编程仓",
+  "block.gtmthings.smart_assembly_factory": "智能装配工厂",
   "gtmthings.creative_tooltip": "§7你需要§b创造模式§7来使用它",
   "gtmthings.universal.disabled":"多方块结构共享：§4禁止",
   "gtmthings.machine.energy_hatch.input.tooltip": "为多方块结构输入能量",
