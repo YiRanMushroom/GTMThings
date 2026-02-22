@@ -3,6 +3,7 @@ package com.hepdd.gtmthings.mixin;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
+
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Mixin(Predicates.class)
 public class PredicatesMixin {
+
     @Inject(method = "abilities", at = @At("HEAD"), remap = false)
     private static void gtmthings$abilities(PartAbility[] abilities, CallbackInfoReturnable<TraceabilityPredicate> cir,
                                             @Local(argsOnly = true) LocalRef<PartAbility[]> abilitiesRef) {
