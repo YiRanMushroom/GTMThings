@@ -14,6 +14,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
+
+import static com.gregtechceu.gtceu.api.recipe.OverclockingLogic.PERFECT_HALF_DURATION_FACTOR;
 
 @Mixin(FusionReactorMachine.class)
 public abstract class FusionReactorMixin extends WorkableElectricMultiblockMachine {
@@ -30,5 +34,10 @@ public abstract class FusionReactorMixin extends WorkableElectricMultiblockMachi
         return original.call(
                 instance, metaMachine, gtRecipe,
                 ((FusionReactorMachine) metaMachine).getOverclockVoltage(), true);
+    }
+
+    @ModifyConstant(method = "<clinit>", constant = @Constant(doubleValue = PERFECT_HALF_DURATION_FACTOR))
+    private static double modifyFusionOverclockingLogic(double original) {
+        return 0.25;
     }
 }
