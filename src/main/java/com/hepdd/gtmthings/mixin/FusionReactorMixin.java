@@ -7,17 +7,13 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.FusionReactorMachine;
-
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
-
-import static com.gregtechceu.gtceu.api.recipe.OverclockingLogic.PERFECT_HALF_DURATION_FACTOR;
 
 @Mixin(FusionReactorMachine.class)
 public abstract class FusionReactorMixin extends WorkableElectricMultiblockMachine {
@@ -36,8 +32,10 @@ public abstract class FusionReactorMixin extends WorkableElectricMultiblockMachi
                 ((FusionReactorMachine) metaMachine).getOverclockVoltage(), true);
     }
 
-    @ModifyConstant(method = "<clinit>", constant = @Constant(doubleValue = PERFECT_HALF_DURATION_FACTOR))
-    private static double modifyFusionOverclockingLogic(double original) {
-        return 0.25;
+    @Definition(id = "FUSION_OC", field = "Lcom/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine;FUSION_OC:Lcom/gregtechceu/gtceu/api/recipe/OverclockingLogic;")
+    @Expression("FUSION_OC = @(?)")
+    @ModifyExpressionValue(method = "<clinit>", at = @At("MIXINEXTRAS:EXPRESSION"))
+    private static OverclockingLogic modifyFusionOverclockingLogic(OverclockingLogic original) {
+        return OverclockingLogic.PERFECT_OVERCLOCK_SUBTICK;
     }
 }
