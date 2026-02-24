@@ -14,7 +14,7 @@ public class CleanroomMachineMixin {
 
     @WrapMethod(method = "isMachineBanned", remap = false)
     private boolean gtmthings$allowCleanroomMachine(MetaMachine machine, Operation<Boolean> original) {
-        if (!ConfigHolder.INSTANCE.machines.cleanMultiblocks && machine instanceof MufflerPartMachine) {
+        if (machine instanceof MufflerPartMachine) {
             return false;
         } else {
             return original.call(machine);
