@@ -11,8 +11,10 @@
     "GTRecipesMixin",
     "OverclockingLogicMixin",
     "ParallelLogicMixin",
-    "PredicatesMixin"
+    "PredicatesMixin",
+    "starT.AuxiliaryBoostedFusionReactorMixin"
   ],
+  "plugin": "com.hepdd.gtmthings.mixin.ModMixinPlugin",
   "client": [
     "MinecraftMainMixin"
   ],
