@@ -160,7 +160,7 @@ dependencies {
 
     modImplementation('dev.toma.configuration:configuration-forge-1.20.1:2.2.0')
 
-    modImplementation(files('libs/Star-Technology-Core-1.0.7.jar'))
+    modCompileOnly(files('libs/Star-Technology-Core-1.0.7.jar'))
 
     implementation 'com.github.Fallen-Breath.conditional-mixin:conditional-mixin-forge:0.6.4'
 
